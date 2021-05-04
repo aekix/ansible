@@ -1,0 +1,39 @@
+- hosts: all
+  tasks:
+    - name: install nmap
+      apt:
+        name: nmap
+        state: present
+
+    - name: install vim
+      apt:
+        name: vim
+        state: present
+    - name: create s2e1 dir
+      file:
+        path: /tmp/s2e1
+        state: directory
+    - name: create s2e2 dir
+      file:
+        path: /tmp/s2e2
+        state: directory
+    - name: create file and add content
+      file:
+        content: 'demo'
+        path: /tmp/s2e1/demo
+        state: touch
+        mode: u=rw,g=r,o=r
+    - name: copy demo
+      copy:
+        src: /tmp/s2e1/demo
+        dest: /tmp/s2e2/demo2
+        mode: '0644'
+- hosts: role_hosting
+
+  tasks:
+    - name: install apache2
+      apt:
+        name: apache2
+        state: present
+
+
