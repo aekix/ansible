@@ -13,21 +13,22 @@
       file:
         path: /tmp/s2e1
         state: directory
+        mode: '0755'
     - name: create s2e2 dir
       file:
         path: /tmp/s2e2
         state: directory
+        mode: '0755'
     - name: create file and add content
-      file:
-        content: 'demo'
-        path: /tmp/s2e1/demo
-        state: touch
-        mode: u=rw,g=r,o=r
+      copy:
+        content: demo
+        dest: /tmp/s2e1/demo1
+        mode: '0755'
     - name: copy demo
       copy:
-        src: /tmp/s2e1/demo
-        dest: /tmp/s2e2/demo2
-        mode: '0644'
+        src: /tmp/s2e1/demo1
+        dest: /tmp/s2e2/demo1
+        mode: '0755'
 - hosts: role_hosting
 
   tasks:

@@ -1,0 +1,73 @@
+---
+## Play
+- hosts: app_hosting
+
+  tasks:
+    - name: Install apache2
+      apt:
+        name:
+          - apache2
+          - php7.3
+    - name: Download and extract dokuwiki
+      block:
+        - name: Download dokuwiki
+          get_url:
+            url: https://download.dokuwiki.org/src/dokuwiki/dokuwiki-stable.tgz
+            dest: /usr/src
+    - name : Create dokuwiki directory
+      file :
+        path: /usr/src/dokuwiki
+        state: directory
+        mode: '0755'
+    - name: unzip docuwiki
+      unarchive:
+        remote_src: yes
+        src: /usr/src/dokuwiki-stable.tgz
+        dest: /usr/src/dokuwiki
+    - name: Create recettes.wiki
+      file:
+        path: /var/www/recettes.wiki
+        state: directory
+        mode: '0755'
+    - name: Create politique.wiki
+      file:
+        path: /var/www/politique.wiki
+        state: directory
+        mode: '0755'
+    - name: copy dokuwiki in recettes
+      synchronize:
+        src: /usr/src/dokuwiki
+        dest: /var/www/recettes.wiki
+      delegate_to: "{{ inventory_hostname }}"
+    - name: copy doku in politique
+      synchronize:
+        src: /usr/src/dokuwiki
+        dest: /var/www/politique.wiki
+      delegate_to: "{{ inventory_hostname }}"
+    - name: add permission for www-data
+      file:
+        path: /var/www
+        owner: www-data
+        group: www-data
+        mode: '1777'
+    - name: create conf file
+      file:
+        path: /etc/apache2/sites-available/{{ item.name }}
+        state: touch
+      with_items: "{{ virtualhost }}"
+        
+    - name: active recette wiki
+      command: a2ensite recettes-wiki
+
+
+    - name: active politique wiki
+      command: a2ensite politique-wiki
+
+    - name: Reload apache
+      command: systemctl reload apache2
+
+    - name: hosts
+      lineinfile:
+        dest: /etc/hosts
+        line: "127.0.0.1 {{ item.url }}"
+      with_items: "{{ virtualhost }}"

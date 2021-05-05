@@ -1,0 +1,7 @@
+virtualhost:
+  - name: recettes-wiki.conf
+    url: recettes.wiki
+    directory: recettes.wiki
+  - name: politique-wiki.conf
+    url: politique.wiki
+    directory: politique.wiki
